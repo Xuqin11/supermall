@@ -3,6 +3,15 @@
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
     <home-swiper :banners="banners"/>
     <recommend-view :recommends="recommends"/>
+    <feature-view></feature-view>
+    <ul>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
   </div>
 </template>
 
@@ -10,6 +19,7 @@
   import NavBar from 'components/common/navbar/NavBar';
   import HomeSwiper from './childComps/HomeSwiper'
   import RecommendView from './childComps/RecommendView'
+  import FeatureView from './childComps/FeatureView'
 
   import {getHomeMultidata} from "network/home";
 
@@ -18,7 +28,8 @@
     components: {
       NavBar,
       HomeSwiper,
-      RecommendView
+      RecommendView,
+      FeatureView
     },
     data() {
       return {
@@ -41,5 +52,15 @@
   .home-nav {
     background-color: var(--color-tint);
     color: #fff;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+  }
+
+  #home {
+    padding-top: 44px;
   }
 </style>
