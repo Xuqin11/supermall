@@ -2,7 +2,9 @@
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
     <scroll class="content"
-            ref="scroll">
+            ref="scroll"
+            :probeType="3"
+            @scroll="contentScroll">
       <home-swiper :banners="banners"/>
       <recommend-view :recommends="recommends"/>
       <feature-view></feature-view>
@@ -10,7 +12,7 @@
                    @tabClick="tabClick"></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
-    <back-top @click.native="backClick"></back-top>
+    <back-top @click.native="backClick" v-show="isBackTop"></back-top>
   </div>
 </template>
 
@@ -51,7 +53,8 @@
           'new': {page: 0, list: []},
           'sell': {page: 0, list: []}
         },
-        currentType: 'pop'
+        currentType: 'pop',
+        isBackTop: false
       }
     },
     created() {
@@ -72,12 +75,13 @@
         // this.$refs.scroll.scroll.scrollTo(0, 0, 500)
         this.$refs.scroll.scrollTo(0, 0, 500)
       },
-
+      contentScroll(position) {
+        this.isBackTop = (-position.y) > 1000
+      },
       /**
       事件监听相关方法
        */
       tabClick(index) {
-        console.log(index);
         switch(index) {
           case 0:
             this.currentType = 'pop'
@@ -108,6 +112,8 @@
         // console.log(res);
         this.goods[type].list.push(...res.data.list)
         this.goods[type].page += 1
+
+        this.$refs.scroll.finishPullUp()
       }).catch(err => {
         console.log(err);
       })
@@ -117,6 +123,12 @@
 </script>
 
 <style scoped>
+  #home {
+    position: relative;
+    /* padding-top: 44px; */
+    height: 100vh;
+  }
+
   .home-nav {
     background-color: var(--color-tint);
     color: #fff;
@@ -128,11 +140,11 @@
     z-index: 9;
   }
 
-  #home {
-    position: relative;
-    padding-top: 44px;
-    /* height: 100vh; */
-  }
+  /* .tab-control {
+    position: sticky;
+    top: 44px;
+    z-index: 9;
+  } */
 
   .content {
     position: absolute;
