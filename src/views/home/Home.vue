@@ -1,15 +1,23 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <tab-control :titles="['流行', '新款', '精选']" 
+                   @tabClick="tabClick"
+                   ref="tabControl1"
+                   class="tab-control"
+                   v-show="isTabFixed"></tab-control>
     <scroll class="content"
             ref="scroll"
             :probeType="3"
-            @scroll="contentScroll">
-      <home-swiper :banners="banners"/>
+            @scroll="contentScroll"
+            :pull-up-load="true"
+            @pullingUp="loadMore">
+      <home-swiper :banners="banners" @swiperImageLoad='swiperImageLoad'/>
       <recommend-view :recommends="recommends"/>
       <feature-view></feature-view>
       <tab-control :titles="['流行', '新款', '精选']" 
-                   @tabClick="tabClick"></tab-control>
+                   @tabClick="tabClick"
+                   ref="tabControl2"></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
     <back-top @click.native="backClick" v-show="isBackTop"></back-top>
@@ -54,7 +62,9 @@
           'sell': {page: 0, list: []}
         },
         currentType: 'pop',
-        isBackTop: false
+        isBackTop: false,
+        tabOffsetTop: 0,
+        isTabFixed: false
       }
     },
     created() {
@@ -70,14 +80,6 @@
       }
     },
     methods: {
-      // 回到顶部
-      backClick() {
-        // this.$refs.scroll.scroll.scrollTo(0, 0, 500)
-        this.$refs.scroll.scrollTo(0, 0, 500)
-      },
-      contentScroll(position) {
-        this.isBackTop = (-position.y) > 1000
-      },
       /**
       事件监听相关方法
        */
@@ -93,6 +95,27 @@
             this.currentType = 'sell'
             break
         }
+        this.$refs.tabControl1.currentIndex = index
+        this.$refs.tabControl2.currentIndex = index
+      },
+      // 回到顶部
+      backClick() {
+        // this.$refs.scroll.scroll.scrollTo(0, 0, 500)
+        this.$refs.scroll.scrollTo(0, 0, 500)
+      },
+      contentScroll(position) {
+        // 1.判断backTop是否显示
+        this.isBackTop = (-position.y) > 1000
+
+        // 2.监听tabControl判断是否进行吸顶效果
+        this.isTabFixed = (-position.y) > this.tabOffsetTop
+      },
+      loadMore() {
+        this.getHomeGoods(this.currentType)
+      },
+      swiperImageLoad() {
+        this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
+        console.log(this.$refs.tabControl2.$el.offsetTop);
       },
 
       /*
@@ -133,16 +156,15 @@
     background-color: var(--color-tint);
     color: #fff;
 
-    position: fixed;
+    /* position: fixed;
     top: 0;
     left: 0;
-    right: 0;
+    right: 0; */
     z-index: 9;
   }
 
   /* .tab-control {
-    position: sticky;
-    top: 44px;
+    position: relative;
     z-index: 9;
   } */
 
@@ -153,6 +175,6 @@
     left: 0;
     right: 0;
     /* height: 300px; */
-    /* overflow: hidden; */
+    overflow: hidden;
   }
 </style>
