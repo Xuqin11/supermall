@@ -127,7 +127,6 @@
       },
       swiperImageLoad() {
         this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
-        console.log(this.$refs.tabControl2.$el.offsetTop);
       },
 
       /*
