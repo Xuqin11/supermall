@@ -1,10 +1,14 @@
 <template>
   <div id="Detail">
     <detail-nav-bar class="detail-nav"></detail-nav-bar>
-    <scroll class="content">
+    <scroll class="content" ref="scroll">
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
+      <detail-goods-info :detail-info="detailInfo"></detail-goods-info>
+      <detail-param-info :param-info="paramInfo"></detail-param-info>
+      <detail-comment-info :comment-info="commentInfo"></detail-comment-info>
+      <goods-list :goods="recommends"></goods-list>
     </scroll>
   </div>
 </template>
@@ -14,9 +18,14 @@ import DetailNavBar from './childComp/DetailNavBar'
 import DetailSwiper from './childComp/DetailSwiper'
 import DetailBaseInfo from './childComp/DetailBaseInfo'
 import DetailShopInfo from './childComp/DetailShopInfo'
-import Scroll from 'components/common/scroll/Scroll'
+import DetailGoodsInfo from './childComp/DetailGoodsInfo'
+import DetailParamInfo from './childComp/DetailParamInfo'
+import DetailCommentInfo from './childComp/DetailCommentInfo'
 
-import {getDetail, Goods, Shop} from 'network/detail.js'
+import Scroll from 'components/common/scroll/Scroll'
+import GoodsList from 'components/content/goods/GoodsList'
+
+import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail.js'
 
 export default {
   name: 'Detail',
@@ -25,14 +34,22 @@ export default {
     DetailSwiper,
     DetailBaseInfo,
     DetailShopInfo,
-    Scroll
+    DetailGoodsInfo,
+    DetailParamInfo,
+    DetailCommentInfo,
+    Scroll,
+    GoodsList
   },
   data() {
     return {
       iid: null,
       topImages: [],
       goods: {},
-      shop: {}
+      shop: {},
+      detailInfo: {},
+      paramInfo: {},
+      commentInfo: {},
+      recommends: []
     }
   },
   created() {
@@ -42,16 +59,40 @@ export default {
     // 2.根据iid请求详细数据
     getDetail(this.iid).then(res => {
       // console.log(res);
-      // 1. 获取轮播图数据
+      // 1. 获取数据
       const data = res.result
+
+      // 2. 获取轮播图数据
       this.topImages = data.itemInfo.topImages
 
-      // 2. 获取商品信息
+      // 3. 创建商品对象
       this.goods = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
 
-      // 3. 创建店铺信息
+      // 4. 取出店铺信息
       this.shop = new Shop(data.shopInfo)
+
+      // 5. 取出商品详细信息
+      this.detailInfo = data.detailInfo
+
+      // 6. 获取参数的信息
+      this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
+
+      // 7.取出评论信息
+      if(data.rate.cRate !== 0) {
+        this.commentInfo = data.rate.list[0]
+      }
     })
+
+    // 3.请求推荐信息
+    getRecommend().then(res => {
+      // console.log(res.data.list);
+      this.recommends = res.data.list
+    })
+  },
+  methods: {
+    imageLoad() {
+      this.$refs.scroll.refresh()
+    }
   }
 }
 </script>
