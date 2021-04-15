@@ -1,14 +1,14 @@
 <template>
   <div id="Detail">
-    <detail-nav-bar class="detail-nav"></detail-nav-bar>
+    <detail-nav-bar class="detail-nav" @titleClick="titleClick"></detail-nav-bar>
     <scroll class="content" ref="scroll">
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
-      <detail-goods-info :detail-info="detailInfo"></detail-goods-info>
-      <detail-param-info :param-info="paramInfo"></detail-param-info>
-      <detail-comment-info :comment-info="commentInfo"></detail-comment-info>
-      <goods-list :goods="recommends"></goods-list>
+      <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"></detail-goods-info>
+      <detail-param-info ref="param" :param-info="paramInfo"></detail-param-info>
+      <detail-comment-info ref="comment" :comment-info="commentInfo"></detail-comment-info>
+      <goods-list ref="recommend" :goods="recommends"></goods-list>
     </scroll>
   </div>
 </template>
@@ -26,6 +26,8 @@ import Scroll from 'components/common/scroll/Scroll'
 import GoodsList from 'components/content/goods/GoodsList'
 
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail.js'
+
+import {debouce} from 'common/utils.js'
 
 export default {
   name: 'Detail',
@@ -49,7 +51,8 @@ export default {
       detailInfo: {},
       paramInfo: {},
       commentInfo: {},
-      recommends: []
+      recommends: [],
+      themeTopYs: []
     }
   },
   created() {
@@ -89,9 +92,26 @@ export default {
       this.recommends = res.data.list
     })
   },
+  updated() {
+    
+  },
   methods: {
     imageLoad() {
       this.$refs.scroll.refresh()
+      this.themeTopYs = []
+
+      this.themeTopYs.push(0)
+      this.themeTopYs.push(this.$refs.param.$el.offsetTop)
+      this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
+      console.log(this.themeTopYs);
+    },
+    titleClick(index) {
+      console.log(index);
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index]+44, 200)
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index]+44, 200)
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index]+44, 200)
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index]+44, 200)
     }
   }
 }
