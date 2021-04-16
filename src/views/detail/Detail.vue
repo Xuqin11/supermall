@@ -1,7 +1,10 @@
 <template>
   <div id="Detail">
-    <detail-nav-bar class="detail-nav" @titleClick="titleClick"></detail-nav-bar>
-    <scroll class="content" ref="scroll">
+    <detail-nav-bar class="detail-nav" @titleClick="titleClick" ref="nav"></detail-nav-bar>
+    <scroll class="content" 
+            ref="scroll" 
+            @scroll="contentScroll"
+            :probeType=3>
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
@@ -10,6 +13,8 @@
       <detail-comment-info ref="comment" :comment-info="commentInfo"></detail-comment-info>
       <goods-list ref="recommend" :goods="recommends"></goods-list>
     </scroll>
+    <detail-bottom-bar></detail-bottom-bar>
+    <back-top @click.native="backClick" v-show="isBackTop"></back-top>
   </div>
 </template>
 
@@ -21,9 +26,11 @@ import DetailShopInfo from './childComp/DetailShopInfo'
 import DetailGoodsInfo from './childComp/DetailGoodsInfo'
 import DetailParamInfo from './childComp/DetailParamInfo'
 import DetailCommentInfo from './childComp/DetailCommentInfo'
+import DetailBottomBar from './childComp/DetailBottomBar'
 
 import Scroll from 'components/common/scroll/Scroll'
 import GoodsList from 'components/content/goods/GoodsList'
+import BackTop from 'components/common/backTop/BackTop'
 
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail.js'
 
@@ -39,8 +46,10 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
+    DetailBottomBar,
     Scroll,
-    GoodsList
+    GoodsList,
+    BackTop
   },
   data() {
     return {
@@ -52,7 +61,9 @@ export default {
       paramInfo: {},
       commentInfo: {},
       recommends: [],
-      themeTopYs: []
+      themeTopYs: [],
+      currentIndex: 0,
+      isBackTop: false
     }
   },
   created() {
@@ -101,17 +112,41 @@ export default {
       this.themeTopYs = []
 
       this.themeTopYs.push(0)
-      this.themeTopYs.push(this.$refs.param.$el.offsetTop)
-      this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
-      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
-      console.log(this.themeTopYs);
+      this.themeTopYs.push(this.$refs.param.$el.offsetTop - parseInt(44))
+      // console.log(this.$refs.param.$el.offsetTop - parseInt(44));
+      this.themeTopYs.push(this.$refs.comment.$el.offsetTop - parseInt(44))
+      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop - parseInt(44))
+      this.themeTopYs.push(Number.MAX_VALUE)
+      // console.log(this.themeTopYs);
     },
     titleClick(index) {
       console.log(index);
-      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index]+44, 200)
-      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index]+44, 200)
-      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index]+44, 200)
-      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index]+44, 200)
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 200)
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 200)
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 200)
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 200)
+    },
+    contentScroll(position) {
+      // // console.log(position);
+      let positionY = -position.y + 44
+      let length = this.themeTopYs.length
+      for(let i = 0; i < length - 1; i++) {
+        if(this.currentIndex !== i && (positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i+1])) {
+          this.currentIndex = i
+          this.$refs.nav.currentIndex = this.currentIndex
+        }
+        // if(this.currentIndex !== i && ((i < length - 1 && positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i+1]) || (i == length - 1 && positionY >= this.themeTopYs[i]))) {
+        //   // console.log(i);
+        //   this.currentIndex = i
+        //   this.$refs.nav.currentIndex = this.currentIndex
+        // }
+      }
+      this.isBackTop = (-position.y) > 1000
+
+    },
+    backClick() {
+      // this.$refs.scroll.scroll.scrollTo(0, 0, 500)
+      this.$refs.scroll.scrollTo(0, 0, 500)
     }
   }
 }
@@ -132,6 +167,6 @@ export default {
 }
 
 .content {
-  height: calc(100% - 44px);
+  height: calc(100% - 44px - 58px);
 }
 </style>
