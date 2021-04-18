@@ -10,6 +10,7 @@ export default {
     payload.count++
   },
   [ADD_TO_CART](state, payload) {
+    payload.check = true
     state.cartList.push(payload)
   }
 }
