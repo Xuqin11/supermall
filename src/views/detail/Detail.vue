@@ -15,7 +15,7 @@
     </scroll>
     <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
     <back-top @click.native="backClick" v-show="isBackTop"></back-top>
-    <toast :message="message" :show="show"></toast>
+    <!-- <toast :message="message" :show="show"></toast> -->
   </div>
 </template>
 
@@ -32,7 +32,7 @@ import DetailBottomBar from './childComp/DetailBottomBar'
 import Scroll from 'components/common/scroll/Scroll'
 import GoodsList from 'components/content/goods/GoodsList'
 import BackTop from 'components/common/backTop/BackTop'
-import Toast from 'components/common/toast/Toast'
+// import Toast from 'components/common/toast/Toast'
 
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail.js'
 
@@ -51,7 +51,7 @@ export default {
     DetailParamInfo,
     DetailCommentInfo,
     DetailBottomBar,
-    Toast,
+    // Toast,
     Scroll,
     GoodsList,
     BackTop
@@ -69,8 +69,8 @@ export default {
       themeTopYs: [],
       currentIndex: 0,
       isBackTop: false,
-      show: false,
-      message: ''
+      // show: false,
+      // message: ''
     }
   },
   created() {
@@ -172,13 +172,15 @@ export default {
       // })
 
       this.addCart(product).then(res => {
-        console.log(res);
-        this.message = res
-        this.show = true
-        setTimeout(() => {
-          this.message = ''
-          this.show = false
-        }, 1500)
+        // console.log(res);
+        // this.message = res
+        // this.show = true
+        // setTimeout(() => {
+        //   this.message = ''
+        //   this.show = false
+        // }, 1500)
+        this.$toast.show(res, 2000)
+        // console.log(this.$toast.show);
       })
     }
   }
